@@ -1,24 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import FlashcardList from "./components/FlashcardList";
 import "./App.css";
 import axios from "axios";
 
-const SAMPLE_FLASHCARD = [
-	{
-		id: 1,
-		question: "What is 2 + 2?",
-		answer: "4",
-		options: ["2", "3", "4", "5"],
-	},
-	{
-		id: 2,
-		question: "Question",
-		answer: "Answer",
-		options: ["Answer1", "Answer2", "Answer3", "Answer4"],
-	},
-];
-
 function App() {
+	const [flashcards, setFlashcards] = useState([]);
+	const [categories, setCategories] = useState([]);
+
+	const categoryEl = useRef();
+	const amountEl = useRef();
+
+	useEffect(() => {
+		axios.get(`https://opentdb.com/api_category.php`).then((res) => {
+			setCategories(res.data.trivia_categories);
+		});
+	}, []);
+
 	useEffect(() => {
 		axios.get(`https://opentdb.com/api.php?amount=10`).then((res) => {
 			setFlashcards(
@@ -45,8 +42,43 @@ function App() {
 		return textArea.value;
 	}
 
-	const [flashcards, setFlashcards] = useState(SAMPLE_FLASHCARD);
-	return <FlashcardList flashcards={flashcards} />;
+	const handleSubmit = (e) => {
+		e.preventDefault();
+	};
+
+	return (
+		<>
+			<form className="header" onSubmit={handleSubmit}>
+				<div className="form-group">
+					<label htmlFor="category">Category</label>
+					<select id="category" name="category" ref={categoryEl}>
+						{categories.map((category) => (
+							<option value={category.id} key={category.id + "1"}>
+								{category.name}
+							</option>
+						))}
+					</select>
+				</div>
+				<div className="form-group">
+					<label htmlFor="amount">Number of Questions</label>
+					<input
+						type="number"
+						id="amount"
+						name="amount"
+						min="1"
+						defaultValue="10"
+						ref={amountEl}
+					/>
+				</div>
+				<div className="form-group">
+					<button className="btn">Generate</button>
+				</div>
+			</form>
+			<div className="container">
+				<FlashcardList flashcards={flashcards} />
+			</div>
+		</>
+	);
 }
 
 export default App;
