@@ -16,8 +16,8 @@ body {
 	cursor: pointer;
 	transform: perspective(1000px) rotateY(var(--rotate-y, 0))
 		translateY(var(--translate-y, 0));
-	width: 150px;
-	height: 150px;
+	min-width: 150px;
+	min-height: 150px;
 }
 
 .card:hover {
